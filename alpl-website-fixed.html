@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aditya Lagoon Premier League</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08090f;
+    --bg2: #0e0f1c;
+    --surface: rgba(255,255,255,0.04);
+    --border: rgba(168,85,247,0.18);
+    --purple: #a855f7;
+    --purple-dim: rgba(168,85,247,0.15);
+    --pink: #f472b6;
+    --cyan: #06b6d4;
+    --gold: #fbbf24;
+    --green: #10b981;
+    --red: #ef4444;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --dimmed: #475569;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% -10%,rgba(168,85,247,0.12),transparent),radial-gradient(ellipse 60% 40% at 80% 110%,rgba(6,182,212,0.08),transparent);pointer-events:none;z-index:0}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:100;background:rgba(8,9,15,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+  .nav-top{max-width:1200px;margin:0 auto;padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:.75rem}
+  .brand-logo{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:2px;background:linear-gradient(135deg,#a78bfa,#f472b6,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+  .brand-sub{font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:2px;color:#7c3aed;text-transform:uppercase}
+  .nav-actions{display:flex;align-items:center;gap:.75rem}
+
+  /* SAVE INDICATOR */
+  #saveIndicator{font-size:.8rem;font-weight:600;color:var(--green);opacity:0;transition:opacity .3s;display:flex;align-items:center;gap:.3rem}
+  #saveIndicator.show{opacity:1}
+
+  /* BUTTONS */
+  .btn{padding:.5rem 1.1rem;border:none;border-radius:.4rem;font-weight:700;cursor:pointer;transition:all .2s;font-size:.85rem;font-family:'Rajdhani',sans-serif;font-size:.95rem;letter-spacing:.5px;display:inline-flex;align-items:center;gap:.4rem}
+  .btn-admin{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff}
+  .btn-admin:hover{background:linear-gradient(135deg,#a855f7,#c084fc);transform:translateY(-1px)}
+  .btn-exit{background:linear-gradient(135deg,#991b1b,#ef4444);color:#fff}
+  .btn-exit:hover{background:linear-gradient(135deg,#ef4444,#f87171)}
+  .btn-sm{padding:.35rem .75rem;font-size:.8rem}
+  .btn-green{background:#065f46;color:#6ee7b7}
+  .btn-green:hover{background:#047857}
+  .btn-red{background:#7f1d1d;color:#fca5a5}
+  .btn-red:hover{background:#991b1b}
+  .btn-blue{background:#1e3a5f;color:#93c5fd}
+  .btn-blue:hover{background:#1d4ed8}
+  .btn-purple{background:#4c1d95;color:#c4b5fd}
+  .btn-purple:hover{background:#7c3aed}
+  .btn-gray{background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+  .btn-gray:hover{color:var(--text);border-color:var(--purple)}
+
+  /* TABS */
+  .nav-tabs{border-top:1px solid var(--border);display:flex;overflow-x:auto;gap:0;padding:0 1rem;scrollbar-width:none}
+  .nav-tabs::-webkit-scrollbar{display:none}
+  .tab-btn{padding:.65rem 1.1rem;border:none;background:transparent;color:var(--muted);font-weight:700;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-size:.85rem;white-space:nowrap;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;font-size:.95rem}
+  .tab-btn:hover{color:var(--text)}
+  .tab-btn.active{border-bottom-color:var(--purple);color:#d8b4fe}
+  .tab-btn.admin-tab{color:#f97316}
+  .tab-btn.admin-tab.active{border-bottom-color:#f97316;color:#fdba74}
+
+  /* CONTAINER */
+  .container{max-width:1200px;margin:0 auto;padding:1.5rem 1rem;position:relative;z-index:1}
+  .page{display:none}
+  .page.active{display:block;animation:fadeIn .25s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+  /* CARDS */
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:.75rem;padding:1.25rem;transition:border-color .2s}
+  .stat-card:hover{border-color:rgba(168,85,247,.4)}
+  .stat-icon{font-size:1.75rem;margin-bottom:.5rem}
+  .stat-val{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:1px;color:var(--purple)}
+  .stat-lbl{font-size:.8rem;color:var(--muted);font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+
+  /* MATCH CARDS */
+  .match-card{background:var(--surface);border:1px solid var(--border);border-radius:.75rem;padding:1rem 1.25rem;margin-bottom:.75rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;transition:border-color .2s}
+  .match-card:hover{border-color:rgba(168,85,247,.3)}
+  .match-teams{display:flex;align-items:center;gap:.75rem;flex:1;min-width:200px}
+  .match-code{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:1px}
+  .match-score{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:1px}
+  .match-vs{color:var(--dimmed);font-size:.8rem;font-weight:700}
+  .match-meta{font-size:.75rem;color:var(--muted);margin-top:.25rem}
+  .badge{display:inline-block;padding:.2rem .55rem;border-radius:.25rem;font-size:.7rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+  .badge-completed{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+  .badge-upcoming{background:rgba(251,191,36,.1);color:var(--gold);border:1px solid rgba(251,191,36,.25)}
+  .badge-live{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3);animation:pulse 1.5s infinite}
+  @keyframes pulse{50%{opacity:.6}}
+
+  /* TEAM CARDS */
+  .teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}
+  .team-card{border-radius:.75rem;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s}
+  .team-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+  .team-card-inner{padding:1.5rem;position:relative;overflow:hidden}
+  .team-card-inner::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.25)}
+  .team-card-content{position:relative;z-index:1}
+  .team-icon{font-size:2.5rem;margin-bottom:.5rem}
+  .team-name{font-family:'Rajdhani',sans-serif;font-size:1.15rem;font-weight:700;margin-bottom:.75rem;letter-spacing:.5px}
+  .team-stat-row{display:flex;gap:1.5rem}
+  .team-stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:1px}
+  .team-stat-lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.5px;opacity:.8}
+
+  /* PLAYER CARDS */
+  .player-card{background:var(--surface);border:1px solid var(--border);border-radius:.75rem;padding:1rem;margin-bottom:.65rem;display:flex;align-items:center;gap:1rem;transition:border-color .2s}
+  .player-card:hover{border-color:rgba(168,85,247,.35)}
+  .player-jersey{width:36px;height:36px;border-radius:.4rem;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;flex-shrink:0}
+  .player-info{flex:1;min-width:0}
+  .player-name{font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .player-meta{font-size:.8rem;color:var(--muted);margin-top:.15rem}
+  .player-actions{display:flex;gap:.4rem;flex-shrink:0}
+
+  /* LEADERBOARD */
+  .lb-card{background:var(--surface);border:1px solid var(--border);border-radius:.75rem;padding:1rem;margin-bottom:.65rem;display:flex;align-items:center;gap:1rem;transition:border-color .2s}
+  .lb-rank{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;width:32px;text-align:center;flex-shrink:0}
+  .lb-info{flex:1}
+  .lb-name{font-weight:700}
+  .lb-team{font-size:.75rem;color:var(--muted);margin-top:.1rem}
+  .lb-val{font-family:'Bebas Neue',sans-serif;font-size:1.75rem;letter-spacing:1px;text-align:right}
+  .lb-unit{font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;text-align:right}
+
+  /* SECTION HEADERS */
+  .section-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:2px;margin-bottom:1.25rem;margin-top:1.5rem;display:flex;align-items:center;gap:.5rem}
+  .section-title:first-child{margin-top:0}
+
+  /* ADMIN */
+  .admin-section{background:var(--surface);border:1px solid var(--border);border-radius:.75rem;padding:1.25rem;margin-bottom:1.25rem}
+  .admin-section-title{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:.5px;margin-bottom:1rem;color:#fdba74}
+  .admin-btn-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem}
+
+  /* MODAL */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;padding:1rem}
+  .modal-overlay.open{display:flex}
+  .modal{background:#131420;border:1px solid var(--border);border-radius:.75rem;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+  .modal-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .modal-title{font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:700;letter-spacing:.5px;color:var(--text)}
+  .modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.4rem;padding:.2rem;line-height:1;transition:color .2s}
+  .modal-close:hover{color:var(--text)}
+  .modal-body{padding:1.5rem}
+  .modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:.75rem}
+
+  /* FORM */
+  .form-group{margin-bottom:1rem}
+  .form-label{display:block;font-size:.8rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem}
+  .form-input,.form-select,.form-textarea{width:100%;padding:.6rem .8rem;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:.4rem;color:var(--text);font-size:.9rem;font-family:'Inter',sans-serif;transition:border-color .2s;outline:none}
+  .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--purple)}
+  .form-select option{background:#1a1b2e;color:var(--text)}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+  /* TROPHY */
+  .trophy-item{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:.5rem;padding:.75rem 1rem;margin-bottom:.5rem;color:var(--gold);font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:space-between}
+
+  /* BACK BTN */
+  .back-btn{display:inline-flex;align-items:center;gap:.4rem;margin-bottom:1rem;padding:.5rem 1rem;background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:.4rem;cursor:pointer;font-size:.85rem;font-weight:700;transition:all .2s}
+  .back-btn:hover{color:var(--text);border-color:var(--purple)}
+
+  /* DETAIL TEAM CARD */
+  .team-detail-header{border-radius:.75rem;overflow:hidden;margin-bottom:1.5rem}
+  .team-detail-inner{padding:2rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
+  .team-detail-icon{font-size:4rem}
+  .team-detail-name{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:2px;margin-bottom:.5rem}
+  .team-detail-stats{display:flex;gap:2rem;margin-top:1rem}
+
+  /* DIVIDER */
+  .divider{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
+
+  /* RESPONSIVE */
+  @media(max-width:600px){
+    .brand-logo{font-size:1.6rem}
+    .form-row{grid-template-columns:1fr}
+    .team-detail-inner{flex-direction:column;gap:1rem}
+    .player-actions{flex-direction:column}
+    .match-teams{min-width:0}
+  }
+
+  /* TOAST */
+  #toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#1e293b;border:1px solid var(--border);border-radius:.5rem;padding:.75rem 1.5rem;font-weight:700;font-size:.9rem;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+  #toast.show{opacity:1}
+
+  /* MATCH EDIT ROW */
+  .match-actions{display:flex;gap:.4rem;margin-left:auto}
+  .score-display{display:flex;align-items:center;gap:.5rem}
+
+  /* ADMIN TABLE */
+  .data-table{width:100%;border-collapse:collapse;font-size:.875rem}
+  .data-table th{text-align:left;padding:.6rem .75rem;border-bottom:1px solid var(--border);color:var(--muted);font-size:.75rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+  .data-table td{padding:.65rem .75rem;border-bottom:1px solid rgba(255,255,255,.04)}
+  .data-table tr:last-child td{border-bottom:none}
+  .data-table tr:hover td{background:rgba(255,255,255,.02)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-top">
+    <div class="brand">
+      <div>
+        <div class="brand-logo">⚡ ALPL</div>
+        <div class="brand-sub">Aditya Lagoon Premier League</div>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <span id="saveIndicator">✓ Saved</span>
+      <button class="btn btn-admin" id="adminBtn" onclick="toggleAdmin()">🔒 Admin</button>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('home',this)">🏠 Home</button>
+    <button class="tab-btn" onclick="switchTab('teams',this)">🏏 Teams</button>
+    <button class="tab-btn" onclick="switchTab('players',this)">👤 Players</button>
+    <button class="tab-btn" onclick="switchTab('matches',this)">📅 Matches</button>
+    <button class="tab-btn" onclick="switchTab('leaderboard',this)">📊 Leaderboard</button>
+    <button class="tab-btn admin-tab" onclick="switchTab('admin',this)" id="adminTab">⚙️ Admin</button>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- PAGES -->
+<div class="container">
+
+  <!-- HOME -->
+  <div id="page-home" class="page active">
+    <div class="stat-grid" id="homeStats"></div>
+    <div class="section-title">📅 Recent Matches</div>
+    <div id="homeMatches"></div>
+  </div>
+
+  <!-- TEAMS -->
+  <div id="page-teams" class="page">
+    <div id="teamsView"></div>
+  </div>
+
+  <!-- PLAYERS -->
+  <div id="page-players" class="page">
+    <div class="section-title">👤 All Players</div>
+    <div id="playersList"></div>
+  </div>
+
+  <!-- MATCHES -->
+  <div id="page-matches" class="page">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.25rem">
+      <div class="section-title" style="margin:0">📅 All Matches</div>
+      <button class="btn btn-purple" onclick="openAddMatch()" id="addMatchBtn" style="display:none">+ Add Match</button>
+    </div>
+    <div id="matchesList"></div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div id="page-leaderboard" class="page">
+    <div class="section-title" style="color:var(--gold)">🔥 Top Batsmen</div>
+    <div id="topBatsmen"></div>
+    <div class="section-title" style="color:var(--cyan);margin-top:2rem">⚡ Top Bowlers</div>
+    <div id="topBowlers"></div>
+    <div class="section-title" style="color:var(--green);margin-top:2rem">🏆 Team Standings</div>
+    <div id="teamStandings"></div>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="page-admin" class="page">
+    <div class="section-title">⚙️ Admin Panel</div>
+    <div id="adminPanel"></div>
+  </div>
+
+</div>
+
+<!-- ============ MODALS ============ -->
+
+<!-- Player Modal -->
+<div class="modal-overlay" id="playerModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="playerModalTitle">Add Player</div>
+      <button class="modal-close" onclick="closeModal('playerModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="playerModalId">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input class="form-input" id="pm-name" placeholder="Player name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Jersey #</label>
+          <input class="form-input" id="pm-jersey" type="number" placeholder="10">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Team</label>
+          <select class="form-select" id="pm-team"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Role</label>
+          <select class="form-select" id="pm-role">
+            <option>Batsman</option>
+            <option>Bowler</option>
+            <option>All-rounder</option>
+            <option>Wicket-keeper</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Runs</label>
+          <input class="form-input" id="pm-runs" type="number" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Wickets</label>
+          <input class="form-input" id="pm-wickets" type="number" placeholder="0">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="closeModal('playerModal')">Cancel</button>
+      <button class="btn btn-green" onclick="savePlayer()">✓ Save Player</button>
+    </div>
+  </div>
+</div>
+
+<!-- Match Modal -->
+<div class="modal-overlay" id="matchModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="matchModalTitle">Add Match</div>
+      <button class="modal-close" onclick="closeModal('matchModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="matchModalId">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Team 1</label>
+          <select class="form-select" id="mm-team1"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Team 2</label>
+          <select class="form-select" id="mm-team2"></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Score (Team 1)</label>
+          <input class="form-input" id="mm-score1" type="number" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Score (Team 2)</label>
+          <input class="form-input" id="mm-score2" type="number" placeholder="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input class="form-input" id="mm-date" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="mm-status">
+            <option value="upcoming">Upcoming</option>
+            <option value="live">Live</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Venue</label>
+        <input class="form-input" id="mm-venue" placeholder="Aditya Lagoon">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="closeModal('matchModal')">Cancel</button>
+      <button class="btn btn-green" onclick="saveMatch()">✓ Save Match</button>
+    </div>
+  </div>
+</div>
+
+<!-- Team Edit Modal -->
+<div class="modal-overlay" id="teamModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Edit Team</div>
+      <button class="modal-close" onclick="closeModal('teamModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="teamModalId">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Team Name</label>
+          <input class="form-input" id="tm-name" placeholder="Full team name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Short Code</label>
+          <input class="form-input" id="tm-code" placeholder="ABC" maxlength="4">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Icon (emoji)</label>
+          <input class="form-input" id="tm-icon" placeholder="🏏">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color</label>
+          <input class="form-input" id="tm-color" type="color" style="height:42px;padding:.2rem">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Wins</label>
+          <input class="form-input" id="tm-wins" type="number" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Losses</label>
+          <input class="form-input" id="tm-losses" type="number" placeholder="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Trophies (one per line)</label>
+        <textarea class="form-textarea" id="tm-trophies" rows="4" placeholder="Season 1 Champions&#10;Season 2 Champions"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="closeModal('teamModal')">Cancel</button>
+      <button class="btn btn-green" onclick="saveTeam()">✓ Save Team</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <div class="modal-title" style="color:var(--red)">⚠️ Confirm Delete</div>
+      <button class="modal-close" onclick="closeModal('confirmModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--muted)" id="confirmMsg">Are you sure?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-red" onclick="confirmAction()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== DATA ====================
+const ADMIN_PASSWORD = 'alpl123'
+const STORAGE_KEY = 'alpl_data_v3'
+
+const initialData = {
+  teams: [
+    { id: 'pnk', name: 'Pragathi Nagar Kings', shortCode: 'PNK', wins: 2, losses: 3, color: '#8B5CF6', icon: '👑', trophies: ['Season 2 Champions', 'Season 4 Champions'] },
+    { id: 'kkr', name: 'Kukatpally Knight Riders', shortCode: 'KKR', wins: 3, losses: 2, color: '#06B6D4', icon: '⚔️', trophies: [] },
+    { id: 'shp', name: 'Sunrisers Hafeezpet', shortCode: 'SHP', wins: 2, losses: 3, color: '#F97316', icon: '🌅', trophies: ['Season 1 Champions'] },
+    { id: 'csk', name: 'Chintal Super Kings', shortCode: 'CSK', wins: 5, losses: 0, color: '#10B981', icon: '👸', trophies: ['Season 3 Champions','Season 5 Champions','Season 6 Champions','Season 7 Champions','Season 8 Champions','Season 9 Champions'] },
+    { id: 'rcb', name: 'Royal Challengers Bachupally', shortCode: 'RCB', wins: 0, losses: 5, color: '#EF4444', icon: '🔴', trophies: [] }
+  ],
+  players: [
+    { id: 'p1',  teamId: 'shp', name: 'Mihir',     role: 'All-rounder', jersey: 1,  runs: 0, wickets: 0 },
+    { id: 'p2',  teamId: 'shp', name: 'Yuvansh',   role: 'Batsman',     jersey: 2,  runs: 0, wickets: 0 },
+    { id: 'p3',  teamId: 'shp', name: 'Vaibhav',   role: 'Batsman',     jersey: 3,  runs: 0, wickets: 0 },
+    { id: 'p4',  teamId: 'shp', name: 'Sree',      role: 'Bowler',      jersey: 4,  runs: 0, wickets: 0 },
+    { id: 'p5',  teamId: 'pnk', name: 'Himmanish', role: 'Batsman',     jersey: 5,  runs: 0, wickets: 0 },
+    { id: 'p6',  teamId: 'pnk', name: 'Chinmay',   role: 'All-rounder', jersey: 6,  runs: 0, wickets: 0 },
+    { id: 'p7',  teamId: 'pnk', name: 'Ketan',     role: 'Bowler',      jersey: 7,  runs: 0, wickets: 0 },
+    { id: 'p8',  teamId: 'pnk', name: 'Asheq',     role: 'Batsman',     jersey: 8,  runs: 0, wickets: 0 },
+    { id: 'p9',  teamId: 'kkr', name: 'Geetank',   role: 'Batsman',     jersey: 9,  runs: 0, wickets: 0 },
+    { id: 'p10', teamId: 'kkr', name: 'Siva Sai',  role: 'Bowler',      jersey: 10, runs: 0, wickets: 0 },
+    { id: 'p11', teamId: 'kkr', name: 'Aditya',    role: 'All-rounder', jersey: 11, runs: 0, wickets: 0 },
+    { id: 'p12', teamId: 'kkr', name: 'Mahit',     role: 'Batsman',     jersey: 12, runs: 0, wickets: 0 },
+    { id: 'p13', teamId: 'csk', name: 'Jetin',     role: 'All-rounder', jersey: 13, runs: 0, wickets: 0 },
+    { id: 'p14', teamId: 'csk', name: 'Thaneesh',  role: 'Batsman',     jersey: 14, runs: 0, wickets: 0 },
+    { id: 'p15', teamId: 'csk', name: 'Monish',    role: 'Bowler',      jersey: 15, runs: 0, wickets: 0 },
+    { id: 'p16', teamId: 'csk', name: 'Harsha',    role: 'Batsman',     jersey: 16, runs: 0, wickets: 0 },
+    { id: 'p17', teamId: 'rcb', name: 'Harshit',   role: 'Bowler',      jersey: 17, runs: 0, wickets: 0 },
+    { id: 'p18', teamId: 'rcb', name: 'Preetham',  role: 'Batsman',     jersey: 18, runs: 0, wickets: 0 },
+    { id: 'p19', teamId: 'rcb', name: 'Nishal',    role: 'All-rounder', jersey: 19, runs: 0, wickets: 0 },
+    { id: 'p20', teamId: 'rcb', name: 'Ayaan',     role: 'Batsman',     jersey: 20, runs: 0, wickets: 0 },
+    { id: 'p21', teamId: 'shp', name: 'Rohit',     role: 'Batsman',     jersey: 21, runs: 0, wickets: 0 },
+    { id: 'p22', teamId: 'kkr', name: 'Naren',     role: 'Bowler',      jersey: 22, runs: 0, wickets: 0 },
+    { id: 'p23', teamId: 'csk', name: 'Ganesh',    role: 'All-rounder', jersey: 23, runs: 0, wickets: 0 },
+    { id: 'p24', teamId: 'rcb', name: 'Nidhin',    role: 'Bowler',      jersey: 24, runs: 0, wickets: 0 },
+    { id: 'p25', teamId: 'pnk', name: 'Pradumna',  role: 'Batsman',     jersey: 25, runs: 0, wickets: 0 },
+  ],
+  matches: [
+    { id: 'm1', team1: 'csk', team2: 'shp', date: '2025-01-10', venue: 'Aditya Lagoon', status: 'completed', score1: 156, score2: 142 },
+    { id: 'm2', team1: 'pnk', team2: 'kkr', date: '2025-01-11', venue: 'Aditya Lagoon', status: 'completed', score1: 168, score2: 145 },
+    { id: 'm3', team1: 'rcb', team2: 'csk', date: '2025-01-18', venue: 'Aditya Lagoon', status: 'upcoming', score1: 0, score2: 0 },
+    { id: 'm4', team1: 'shp', team2: 'pnk', date: '2025-01-19', venue: 'Aditya Lagoon', status: 'upcoming', score1: 0, score2: 0 }
+  ]
+}
+
+// ==================== STATE ====================
+let data = loadData()
+let adminMode = false
+let currentTeamView = null
+let pendingConfirm = null
+
+// ==================== STORAGE ====================
+function loadData() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY)
+    return s ? JSON.parse(s) : JSON.parse(JSON.stringify(initialData))
+  } catch(e) {
+    return JSON.parse(JSON.stringify(initialData))
+  }
+}
+
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    flashSave()
+  } catch(e) { console.error('Save failed', e) }
+}
+
+function flashSave() {
+  const el = document.getElementById('saveIndicator')
+  el.classList.add('show')
+  clearTimeout(el._t)
+  el._t = setTimeout(() => el.classList.remove('show'), 1800)
+}
+
+// ==================== HELPERS ====================
+function getTeam(id) { return data.teams.find(t => t.id === id) || {} }
+function getTeamPlayers(tid) { return data.players.filter(p => p.teamId === tid) }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,5) }
+
+function toast(msg, color='#10b981') {
+  const el = document.getElementById('toast')
+  el.textContent = msg
+  el.style.color = color
+  el.classList.add('show')
+  clearTimeout(el._t)
+  el._t = setTimeout(() => el.classList.remove('show'), 2200)
+}
+
+// ==================== NAVIGATION ====================
+let currentTab = 'home'
+
+function switchTab(tab, el) {
+  if (tab === 'admin' && !adminMode) {
+    toast('🔐 Login as Admin first!', '#f87171')
+    return
+  }
+  currentTab = tab
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'))
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
+  document.getElementById('page-' + tab).classList.add('active')
+  if (el) el.classList.add('active')
+  currentTeamView = null
+  renderAll()
+}
+
+// ==================== ADMIN ====================
+function toggleAdmin() {
+  if (adminMode) {
+    adminMode = false
+    document.getElementById('adminBtn').className = 'btn btn-admin'
+    document.getElementById('adminBtn').textContent = '🔒 Admin'
+    document.getElementById('addMatchBtn').style.display = 'none'
+    // hide admin tab highlight
+    renderAll()
+    toast('Logged out of Admin', '#94a3b8')
+  } else {
+    const pw = prompt('🔐 Enter Admin Password:')
+    if (pw === ADMIN_PASSWORD) {
+      adminMode = true
+      document.getElementById('adminBtn').className = 'btn btn-exit'
+      document.getElementById('adminBtn').innerHTML = '🔓 Exit Admin'
+      document.getElementById('addMatchBtn').style.display = ''
+      toast('✅ Admin Mode Active!', '#10b981')
+      renderAll()
+    } else if (pw !== null) {
+      toast('❌ Wrong Password!', '#ef4444')
+    }
+  }
+}
+
+// ==================== RENDER ALL ====================
+function renderAll() {
+  renderHome()
+  renderTeams()
+  renderPlayers()
+  renderMatches()
+  renderLeaderboard()
+  renderAdmin()
+}
+
+// ==================== HOME ====================
+function renderHome() {
+  const completed = data.matches.filter(m => m.status === 'completed')
+  const upcoming  = data.matches.filter(m => m.status === 'upcoming')
+  const stats = [
+    { icon: '🏏', val: data.teams.length,   lbl: 'Teams' },
+    { icon: '👤', val: data.players.length, lbl: 'Players' },
+    { icon: '✅', val: completed.length,    lbl: 'Completed' },
+    { icon: '📅', val: upcoming.length,     lbl: 'Upcoming' }
+  ]
+  document.getElementById('homeStats').innerHTML = stats.map(s => `
+    <div class="stat-card">
+      <div class="stat-icon">${s.icon}</div>
+      <div class="stat-val">${s.val}</div>
+      <div class="stat-lbl">${s.lbl}</div>
+    </div>`).join('')
+
+  const recent = [...data.matches].reverse().slice(0, 4)
+  document.getElementById('homeMatches').innerHTML = recent.length
+    ? recent.map(m => matchCardHTML(m)).join('')
+    : '<p style="color:var(--muted)">No matches yet.</p>'
+}
+
+// ==================== TEAMS ====================
+function renderTeams() {
+  const container = document.getElementById('teamsView')
+  if (currentTeamView) {
+    const team = getTeam(currentTeamView)
+    const players = getTeamPlayers(currentTeamView)
+    const wr = team.wins + team.losses > 0 ? ((team.wins/(team.wins+team.losses))*100).toFixed(0) : 0
+    container.innerHTML = `
+      <button class="back-btn" onclick="currentTeamView=null;renderTeams()">← Back to Teams</button>
+      <div class="team-detail-header">
+        <div class="team-detail-inner" style="background:${team.color}22;border:1px solid ${team.color}44">
+          <div class="team-detail-icon">${team.icon}</div>
+          <div>
+            <div class="team-detail-name">${team.name}</div>
+            <div style="color:var(--muted);font-size:.85rem;letter-spacing:1px">${team.shortCode}</div>
+            <div class="team-detail-stats">
+              <div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.75rem">${team.wins}</div><div style="font-size:.7rem;color:var(--muted);text-transform:uppercase">Wins</div></div>
+              <div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.75rem">${team.losses}</div><div style="font-size:.7rem;color:var(--muted);text-transform:uppercase">Losses</div></div>
+              <div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.75rem">${wr}%</div><div style="font-size:.7rem;color:var(--muted);text-transform:uppercase">Win Rate</div></div>
+            </div>
+          </div>
+          ${adminMode ? `<button class="btn btn-blue btn-sm" style="margin-left:auto" onclick="openEditTeam('${team.id}')">✏️ Edit Team</button>` : ''}
+        </div>
+      </div>
+      ${team.trophies && team.trophies.length > 0 ? `
+        <div class="section-title" style="color:var(--gold)">🏆 Trophies</div>
+        ${team.trophies.map(t => `<div class="trophy-item">${t}</div>`).join('')}
+      ` : ''}
+      <div class="section-title" style="margin-top:1.5rem">👥 Squad (${players.length})</div>
+      ${players.map(p => playerCardHTML(p)).join('') || '<p style="color:var(--muted)">No players.</p>'}
+    `
+  } else {
+    container.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.25rem">
+        <div class="section-title" style="margin:0">🏏 Teams</div>
+      </div>
+      <div class="teams-grid">${data.teams.map(team => {
+        const total = team.wins + team.losses
+        return `
+        <div class="team-card" onclick="currentTeamView='${team.id}';renderTeams()">
+          <div class="team-card-inner" style="background:${team.color}">
+            <div class="team-card-content">
+              <div class="team-icon">${team.icon}</div>
+              <div class="team-name">${team.name}</div>
+              <div class="team-stat-row">
+                <div><div class="team-stat-val">${team.wins}</div><div class="team-stat-lbl">Wins</div></div>
+                <div><div class="team-stat-val">${team.losses}</div><div class="team-stat-lbl">Losses</div></div>
+                <div><div class="team-stat-val">${team.trophies ? team.trophies.length : 0}</div><div class="team-stat-lbl">Trophies</div></div>
+              </div>
+            </div>
+          </div>
+        </div>`
+      }).join('')}</div>`
+  }
+}
+
+// ==================== PLAYERS ====================
+function renderPlayers() {
+  const sorted = [...data.players].sort((a,b) => a.teamId.localeCompare(b.teamId) || a.jersey - b.jersey)
+  document.getElementById('playersList').innerHTML = sorted.map(p => playerCardHTML(p)).join('') || '<p style="color:var(--muted)">No players.</p>'
+}
+
+function playerCardHTML(p) {
+  const team = getTeam(p.teamId)
+  return `
+    <div class="player-card">
+      <div class="player-jersey" style="background:${team.color || '#6b7280'}33;color:${team.color || '#a78bfa'}">${p.jersey}</div>
+      <div class="player-info">
+        <div class="player-name">${p.name}</div>
+        <div class="player-meta">${p.role} · ${team.shortCode || '?'} · ${p.runs} runs · ${p.wickets} wickets</div>
+      </div>
+      ${adminMode ? `
+        <div class="player-actions">
+          <button class="btn btn-blue btn-sm" onclick="openEditPlayer('${p.id}');event.stopPropagation()">✏️</button>
+          <button class="btn btn-red btn-sm" onclick="confirmDelete('player','${p.id}','${p.name}');event.stopPropagation()">🗑</button>
+        </div>` : ''}
+    </div>`
+}
+
+// ==================== MATCHES ====================
+function renderMatches() {
+  const sorted = [...data.matches].sort((a,b) => new Date(b.date) - new Date(a.date))
+  document.getElementById('matchesList').innerHTML = sorted.map(m => matchCardHTML(m, true)).join('') || '<p style="color:var(--muted)">No matches yet.</p>'
+  document.getElementById('addMatchBtn').style.display = adminMode ? '' : 'none'
+}
+
+function matchCardHTML(m, showActions=false) {
+  const t1 = getTeam(m.team1), t2 = getTeam(m.team2)
+  const badgeCls = m.status === 'completed' ? 'badge-completed' : m.status === 'live' ? 'badge-live' : 'badge-upcoming'
+  const badgeTxt = m.status === 'completed' ? 'Final' : m.status === 'live' ? '● Live' : 'Upcoming'
+  return `
+    <div class="match-card">
+      <div class="match-teams">
+        <span class="match-code" style="color:${t1.color||'#fff'}">${t1.shortCode||m.team1}</span>
+        ${m.status !== 'upcoming' ? `<span class="match-score" style="color:${t1.color||'#a78bfa'}">${m.score1}</span>` : ''}
+        <span class="match-vs">vs</span>
+        ${m.status !== 'upcoming' ? `<span class="match-score" style="color:${t2.color||'#f472b6'}">${m.score2}</span>` : ''}
+        <span class="match-code" style="color:${t2.color||'#fff'}">${t2.shortCode||m.team2}</span>
+        <span class="badge ${badgeCls}" style="margin-left:.5rem">${badgeTxt}</span>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+        <div style="text-align:right">
+          <div style="font-size:.8rem;color:var(--muted)">${m.date}</div>
+          <div style="font-size:.75rem;color:var(--dimmed)">${m.venue}</div>
+        </div>
+        ${showActions && adminMode ? `
+          <div style="display:flex;gap:.4rem">
+            <button class="btn btn-blue btn-sm" onclick="openEditMatch('${m.id}')">✏️</button>
+            <button class="btn btn-red btn-sm" onclick="confirmDelete('match','${m.id}','this match')">🗑</button>
+          </div>` : ''}
+      </div>
+    </div>`
+}
+
+// ==================== LEADERBOARD ====================
+function renderLeaderboard() {
+  const batsmen = [...data.players].sort((a,b) => b.runs - a.runs).slice(0,8)
+  const bowlers = [...data.players].filter(p => p.wickets > 0).sort((a,b) => b.wickets - a.wickets).slice(0,8)
+  const teams   = [...data.teams].sort((a,b) => b.wins - a.wins || a.losses - b.losses)
+
+  const medals = ['🥇','🥈','🥉']
+
+  document.getElementById('topBatsmen').innerHTML = batsmen.map((p,i) => `
+    <div class="lb-card" style="border-color:${i===0?'rgba(251,191,36,.4)':i===1?'rgba(148,163,184,.3)':i===2?'rgba(205,127,50,.3)':'var(--border)'}">
+      <div class="lb-rank" style="color:${i<3?'var(--gold)':'var(--muted)'}">${medals[i]||i+1}</div>
+      <div class="lb-info">
+        <div class="lb-name">${p.name}</div>
+        <div class="lb-team">${getTeam(p.teamId).shortCode||''} · ${p.role}</div>
+      </div>
+      <div>
+        <div class="lb-val" style="color:var(--gold)">${p.runs}</div>
+        <div class="lb-unit" style="color:var(--gold)">runs</div>
+      </div>
+    </div>`).join('') || '<p style="color:var(--muted)">No batting data yet.</p>'
+
+  document.getElementById('topBowlers').innerHTML = bowlers.length ? bowlers.map((p,i) => `
+    <div class="lb-card" style="border-color:${i===0?'rgba(6,182,212,.4)':'var(--border)'}">
+      <div class="lb-rank" style="color:${i<3?'var(--cyan)':'var(--muted)'}">${medals[i]||i+1}</div>
+      <div class="lb-info">
+        <div class="lb-name">${p.name}</div>
+        <div class="lb-team">${getTeam(p.teamId).shortCode||''} · ${p.role}</div>
+      </div>
+      <div>
+        <div class="lb-val" style="color:var(--cyan)">${p.wickets}</div>
+        <div class="lb-unit" style="color:var(--cyan)">wickets</div>
+      </div>
+    </div>`).join('') : '<p style="color:var(--muted)">No bowling data yet.</p>'
+
+  document.getElementById('teamStandings').innerHTML = teams.map((t,i) => {
+    const total = t.wins + t.losses
+    const wr = total > 0 ? ((t.wins/total)*100).toFixed(0) : 0
+    return `
+    <div class="lb-card">
+      <div class="lb-rank" style="color:${i<3?'var(--green)':'var(--muted)'}">${medals[i]||i+1}</div>
+      <div style="font-size:1.5rem;margin:0 .5rem">${t.icon}</div>
+      <div class="lb-info">
+        <div class="lb-name">${t.name}</div>
+        <div class="lb-team">${t.wins}W · ${t.losses}L · ${t.trophies?t.trophies.length:0} 🏆</div>
+      </div>
+      <div>
+        <div class="lb-val" style="color:var(--green)">${wr}%</div>
+        <div class="lb-unit" style="color:var(--green)">win rate</div>
+      </div>
+    </div>`
+  }).join('')
+}
+
+// ==================== ADMIN PANEL ====================
+function renderAdmin() {
+  if (!adminMode) {
+    document.getElementById('adminPanel').innerHTML = `
+      <div style="text-align:center;padding:3rem 1rem;color:var(--muted)">
+        <div style="font-size:3rem;margin-bottom:1rem">🔐</div>
+        <div style="font-size:1.1rem;font-weight:700;margin-bottom:.5rem">Admin Access Required</div>
+        <div style="font-size:.9rem">Click <strong style="color:var(--purple)">Admin</strong> in the navbar to log in</div>
+      </div>`
+    return
+  }
+
+  document.getElementById('adminPanel').innerHTML = `
+    <div class="admin-section">
+      <div class="admin-section-title">🏏 Manage Teams</div>
+      <table class="data-table">
+        <thead><tr><th>Team</th><th>W</th><th>L</th><th>Trophies</th><th>Action</th></tr></thead>
+        <tbody>${data.teams.map(t => `
+          <tr>
+            <td style="font-weight:700">${t.icon} ${t.name}</td>
+            <td>${t.wins}</td>
+            <td>${t.losses}</td>
+            <td>${t.trophies?t.trophies.length:0}</td>
+            <td><button class="btn btn-blue btn-sm" onclick="openEditTeam('${t.id}')">✏️ Edit</button></td>
+          </tr>`).join('')}</tbody>
+      </table>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">👤 Manage Players</div>
+      <div class="admin-btn-row">
+        <button class="btn btn-green btn-sm" onclick="openAddPlayer()">+ Add Player</button>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Name</th><th>Team</th><th>Role</th><th>Runs</th><th>Wkts</th><th>Actions</th></tr></thead>
+        <tbody>${data.players.map(p => `
+          <tr>
+            <td>${p.jersey}</td>
+            <td style="font-weight:700">${p.name}</td>
+            <td>${getTeam(p.teamId).shortCode||'?'}</td>
+            <td><span style="color:var(--muted);font-size:.8rem">${p.role}</span></td>
+            <td>${p.runs}</td>
+            <td>${p.wickets}</td>
+            <td style="display:flex;gap:.3rem;flex-wrap:wrap">
+              <button class="btn btn-blue btn-sm" onclick="openEditPlayer('${p.id}')">✏️</button>
+              <button class="btn btn-red btn-sm" onclick="confirmDelete('player','${p.id}','${p.name}')">🗑</button>
+            </td>
+          </tr>`).join('')}</tbody>
+      </table>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">📅 Manage Matches</div>
+      <div class="admin-btn-row">
+        <button class="btn btn-green btn-sm" onclick="openAddMatch()">+ Add Match</button>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Date</th><th>Teams</th><th>Score</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>${[...data.matches].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(m => {
+          const t1=getTeam(m.team1),t2=getTeam(m.team2)
+          return `
+          <tr>
+            <td style="color:var(--muted);font-size:.8rem">${m.date}</td>
+            <td style="font-weight:700">${t1.shortCode||m.team1} vs ${t2.shortCode||m.team2}</td>
+            <td>${m.status==='upcoming'?'–':`${m.score1} – ${m.score2}`}</td>
+            <td><span class="badge badge-${m.status}">${m.status}</span></td>
+            <td style="display:flex;gap:.3rem">
+              <button class="btn btn-blue btn-sm" onclick="openEditMatch('${m.id}')">✏️</button>
+              <button class="btn btn-red btn-sm" onclick="confirmDelete('match','${m.id}','this match')">🗑</button>
+            </td>
+          </tr>`}).join('')}</tbody>
+      </table>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title" style="color:#ef4444">⚠️ Danger Zone</div>
+      <button class="btn btn-red btn-sm" onclick="confirmResetData()">🔄 Reset All Data to Default</button>
+    </div>
+  `
+}
+
+// ==================== MODALS ====================
+function openModal(id) { document.getElementById(id).classList.add('open') }
+function closeModal(id) { document.getElementById(id).classList.remove('open') }
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if(e.target===el) closeModal(el.id) })
+})
+
+// --- PLAYER MODAL ---
+function populateTeamSelect(selId) {
+  document.getElementById(selId).innerHTML = data.teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('')
+}
+
+function openAddPlayer() {
+  document.getElementById('playerModalTitle').textContent = 'Add Player'
+  document.getElementById('playerModalId').value = ''
+  document.getElementById('pm-name').value = ''
+  document.getElementById('pm-jersey').value = ''
+  document.getElementById('pm-runs').value = '0'
+  document.getElementById('pm-wickets').value = '0'
+  populateTeamSelect('pm-team')
+  openModal('playerModal')
+}
+
+function openEditPlayer(id) {
+  const p = data.players.find(x => x.id === id)
+  if (!p) return
+  document.getElementById('playerModalTitle').textContent = 'Edit Player'
+  document.getElementById('playerModalId').value = p.id
+  document.getElementById('pm-name').value = p.name
+  document.getElementById('pm-jersey').value = p.jersey
+  document.getElementById('pm-runs').value = p.runs
+  document.getElementById('pm-wickets').value = p.wickets
+  populateTeamSelect('pm-team')
+  document.getElementById('pm-team').value = p.teamId
+  document.getElementById('pm-role').value = p.role
+  openModal('playerModal')
+}
+
+function savePlayer() {
+  const id = document.getElementById('playerModalId').value
+  const name = document.getElementById('pm-name').value.trim()
+  if (!name) { toast('Please enter a name!','#ef4444'); return }
+  const player = {
+    teamId:  document.getElementById('pm-team').value,
+    name,
+    role:    document.getElementById('pm-role').value,
+    jersey:  parseInt(document.getElementById('pm-jersey').value) || 0,
+    runs:    parseInt(document.getElementById('pm-runs').value) || 0,
+    wickets: parseInt(document.getElementById('pm-wickets').value) || 0
+  }
+  if (id) {
+    const idx = data.players.findIndex(p => p.id === id)
+    if (idx !== -1) data.players[idx] = { id, ...player }
+    toast('✅ Player updated!')
+  } else {
+    data.players.push({ id: 'p' + uid(), ...player })
+    toast('✅ Player added!')
+  }
+  saveData()
+  closeModal('playerModal')
+  renderAll()
+}
+
+// --- MATCH MODAL ---
+function populateMatchTeams() {
+  const opts = data.teams.map(t => `<option value="${t.id}">${t.name}</option>`).join('')
+  document.getElementById('mm-team1').innerHTML = opts
+  document.getElementById('mm-team2').innerHTML = opts
+}
+
+function openAddMatch() {
+  document.getElementById('matchModalTitle').textContent = 'Add Match'
+  document.getElementById('matchModalId').value = ''
+  document.getElementById('mm-score1').value = '0'
+  document.getElementById('mm-score2').value = '0'
+  document.getElementById('mm-date').value = new Date().toISOString().slice(0,10)
+  document.getElementById('mm-venue').value = 'Aditya Lagoon'
+  document.getElementById('mm-status').value = 'upcoming'
+  populateMatchTeams()
+  openModal('matchModal')
+}
+
+function openEditMatch(id) {
+  const m = data.matches.find(x => x.id === id)
+  if (!m) return
+  document.getElementById('matchModalTitle').textContent = 'Edit Match'
+  document.getElementById('matchModalId').value = m.id
+  document.getElementById('mm-score1').value = m.score1
+  document.getElementById('mm-score2').value = m.score2
+  document.getElementById('mm-date').value = m.date
+  document.getElementById('mm-venue').value = m.venue
+  document.getElementById('mm-status').value = m.status
+  populateMatchTeams()
+  document.getElementById('mm-team1').value = m.team1
+  document.getElementById('mm-team2').value = m.team2
+  openModal('matchModal')
+}
+
+function saveMatch() {
+  const id = document.getElementById('matchModalId').value
+  const t1 = document.getElementById('mm-team1').value
+  const t2 = document.getElementById('mm-team2').value
+  if (t1 === t2) { toast('Teams must be different!','#ef4444'); return }
+  const match = {
+    team1:  t1,
+    team2:  t2,
+    score1: parseInt(document.getElementById('mm-score1').value) || 0,
+    score2: parseInt(document.getElementById('mm-score2').value) || 0,
+    date:   document.getElementById('mm-date').value,
+    venue:  document.getElementById('mm-venue').value.trim() || 'Aditya Lagoon',
+    status: document.getElementById('mm-status').value
+  }
+  if (id) {
+    const idx = data.matches.findIndex(m => m.id === id)
+    if (idx !== -1) data.matches[idx] = { id, ...match }
+    toast('✅ Match updated!')
+  } else {
+    data.matches.push({ id: 'm' + uid(), ...match })
+    toast('✅ Match added!')
+  }
+  saveData()
+  closeModal('matchModal')
+  renderAll()
+}
+
+// --- TEAM MODAL ---
+function openEditTeam(id) {
+  const t = data.teams.find(x => x.id === id)
+  if (!t) return
+  document.getElementById('teamModalId').value = t.id
+  document.getElementById('tm-name').value  = t.name
+  document.getElementById('tm-code').value  = t.shortCode
+  document.getElementById('tm-icon').value  = t.icon
+  document.getElementById('tm-color').value = t.color
+  document.getElementById('tm-wins').value  = t.wins
+  document.getElementById('tm-losses').value= t.losses
+  document.getElementById('tm-trophies').value = (t.trophies||[]).join('\n')
+  openModal('teamModal')
+}
+
+function saveTeam() {
+  const id = document.getElementById('teamModalId').value
+  const idx = data.teams.findIndex(t => t.id === id)
+  if (idx === -1) return
+  const trophiesRaw = document.getElementById('tm-trophies').value
+  data.teams[idx] = {
+    ...data.teams[idx],
+    name:      document.getElementById('tm-name').value.trim() || data.teams[idx].name,
+    shortCode: document.getElementById('tm-code').value.trim().toUpperCase() || data.teams[idx].shortCode,
+    icon:      document.getElementById('tm-icon').value.trim() || data.teams[idx].icon,
+    color:     document.getElementById('tm-color').value,
+    wins:      parseInt(document.getElementById('tm-wins').value) || 0,
+    losses:    parseInt(document.getElementById('tm-losses').value) || 0,
+    trophies:  trophiesRaw.split('\n').map(s=>s.trim()).filter(Boolean)
+  }
+  saveData()
+  closeModal('teamModal')
+  renderAll()
+  toast('✅ Team updated!')
+}
+
+// --- CONFIRM DELETE ---
+function confirmDelete(type, id, label) {
+  document.getElementById('confirmMsg').textContent = `Delete "${label}"? This cannot be undone.`
+  pendingConfirm = { type, id }
+  openModal('confirmModal')
+}
+
+function confirmAction() {
+  if (!pendingConfirm) return
+  const { type, id } = pendingConfirm
+  if (type === 'player') {
+    data.players = data.players.filter(p => p.id !== id)
+    toast('Player deleted', '#f87171')
+  } else if (type === 'match') {
+    data.matches = data.matches.filter(m => m.id !== id)
+    toast('Match deleted', '#f87171')
+  }
+  pendingConfirm = null
+  saveData()
+  closeModal('confirmModal')
+  renderAll()
+}
+
+function confirmResetData() {
+  if (confirm('⚠️ Reset ALL data to defaults? This cannot be undone!')) {
+    data = JSON.parse(JSON.stringify(initialData))
+    saveData()
+    renderAll()
+    toast('Data reset to default', '#f87171')
+  }
+}
+
+// ==================== INIT ====================
+window.addEventListener('load', () => {
+  renderAll()
+})
+</script>
+</body>
+</html>
